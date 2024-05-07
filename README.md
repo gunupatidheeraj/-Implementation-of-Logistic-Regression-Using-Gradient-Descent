@@ -5,110 +5,136 @@ To write a program to implement the the Logistic Regression Using Gradient Desce
 
 ## Equipments Required:
 1. Hardware – PCs
-2. Anaconda – Python 3.7 Installation / Moodle-Code Runner
+2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-### Step 1:
-Import the required packages.
+1.Import Libraries: Import the necessary libraries - pandas, numpy, and matplotlib.pyplot.
 
-### Step 2:
-Read the given dataset and assign x and y array.
+2.Load Dataset: Load the dataset using pd.read_csv.
 
-### Step 3:
-Split x and y into training and test set.
+3.Remove irrelevant columns (sl_no, salary).
 
-### Step 4:
-Scale the x variables.
+4.Convert categorical variables to numerical using cat.codes.
 
-### Step 5:
-Fit the logistic regression for the training set to predict y.
+5.Separate features (X) and target variable (Y).
 
-### Step 6:
-Create the confusion matrix and find the accuracy score, recall sensitivity and specificity.
+6.Define Sigmoid Function: Define the sigmoid function.
 
-### Step 7:
-Plot the training set results. 
+7.Define Loss Function: Define the loss function for logistic regression.
 
+8.Define Gradient Descent Function: Implement the gradient descent algorithm to optimize the parameters.
+
+9.Training Model: Initialize theta with random values, then perform gradient descent to minimize the loss and obtain the optimal parameters.
+
+10.Define Prediction Function: Implement a function to predict the output based on the learned parameters.
+
+11.Evaluate Accuracy: Calculate the accuracy of the model on the training data.
+
+12.Predict placement status for a new student with given feature values (xnew).
+
+13.Print Results: Print the predictions and the actual values (Y) for comparison.
 ## Program:
-~~~
-/*
+```
 Program to implement the the Logistic Regression Using Gradient Descent.
-Developed by: challa sandeep
-RegisterNumber:  212221240011
-*/
-#importing packages
+Developed by:N.NAVYA SREE 
+RegisterNumber: 212223040138
+```
+```
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-#reading and displaying dataframe
-df=pd.read_csv("Social_Network_Ads (1).csv")
-df
+dataset=pd.read_csv("C:\sem-1\Placement_Data.csv")
+dataset
+dataset=dataset.drop('sl_no',axis=1)
+dataset=dataset.drop("salary",axis=1)
+dataset ["gender"] = dataset ["gender"].astype('category')
+dataset["ssc_b"] = dataset["ssc_b"].astype('category')
+dataset["hsc_b"] = dataset ["hsc_b"].astype('category')
+dataset ["degree_t"] = dataset ["degree_t"].astype('category')
+dataset ["workex"] = dataset ["workex"].astype('category')
+dataset["specialisation"] = dataset ["specialisation"].astype('category')
+dataset ["status"] = dataset["status"].astype('category')
+dataset ["hsc_s"] = dataset ["hsc_s"].astype('category')
+dataset.dtypes
+dataset ["gender"] = dataset ["gender"].cat.codes
+dataset ["ssc_b"] = dataset["ssc_b"].cat.codes
+dataset ["hsc_b"] = dataset ["hsc_b"].cat.codes
+dataset ["degree_t"] = dataset["degree_t"].cat.codes
+dataset["workex"] = dataset["workex"].cat.codes
+dataset["specialisation"] = dataset["specialisation"].cat.codes
+dataset["status"] = dataset ["status"].cat.codes
+dataset["hsc_s"] = dataset["hsc_s"].cat.codes
+dataset
+X=dataset.iloc[:, :-1].values
+Y=dataset.iloc[:, -1].values
+Y
+theta=np.random.randn(X.shape[1])
+y=Y
+def sigmoid(z):
+    return 1 / (1+np.exp(-z))
+def loss(theta,X,y):
+    h=sigmoid(X.dot(theta))
+    return -np.sum(y * np.log(h) + (1 - y) * np.log(1 - h))
+def gradient_descent (theta, X, y, alpha, num_iterations):
+    m = len(y)
+    for i in range(num_iterations):
+        h = sigmoid(X.dot(theta))
+        gradient = X.T.dot(h-y) / m
+        theta -= alpha * gradient
+    return theta
+theta =  gradient_descent(theta, X, y, alpha=0.01, num_iterations=1000)
+def predict(theta, X): 
+    h = sigmoid(X.dot(theta))
+    y_pred = np.where(h >= 0.5, 1, 0)
+    return y_pred
+y_pred = predict(theta, X)
+accuracy = np.mean(y_pred.flatten()==y)
+print("Accuracy:", accuracy)
+print(y_pred)
+print(Y)
+xnew = np.array([[0, 87, 0, 95, 0, 2, 78, 2, 0, 0, 1, 0]]) 
+y_prednew = predict(theta, xnew) 
+print(y_prednew)
+xnew = np.array([[0, 0, 0, 0, 0, 2, 8, 2, 0, 0, 1, 0]]) 
+y_prednew = predict(theta, xnew) 
+print(y_prednew)
 
-#assigning x and y and displaying them
-x=df.iloc[:,[2,3]].values
-y=df.iloc[:,4].values 
+```
 
-#splitting data into train and test
-from sklearn.model_selection import train_test_split
-xtrain,xtest,ytrain,ytest=train_test_split(x,y,test_size=0.25,random_state=0)
-
-#scaling values and obtaining scaled array of train and test of x
-from sklearn.preprocessing import StandardScaler
-sc_x=StandardScaler()
-xtrain=sc_x.fit_transform(xtrain)
-xtest=sc_x.fit_transform(xtest)
-
-#applying logistic regression to the scaled array
-from sklearn.linear_model import LogisticRegression
-c=LogisticRegression(random_state=0)
-c.fit(xtrain,ytrain)
-
-#finding predicted values of y
-ypred=c.predict(xtest)
-ypred
-
-#calculating confusion matrix
-from sklearn.metrics import confusion_matrix
-cm=confusion_matrix(ytest,ypred)
-cm
-
-#calculating accuracy score
-from sklearn import metrics
-acc=metrics.accuracy_score(ytest,ypred)
-acc
-
-#calculating recall sensitivity and specificity
-r_sens=metrics.recall_score(ytest,ypred,pos_label=1)
-r_spec=metrics.recall_score(ytest,ypred,pos_label=0)
-r_sens,r_spec
-
-#displaying regression 
-from matplotlib.colors import ListedColormap
-import matplotlib.pyplot as plt
-xs,ys=xtrain,ytrain
-x1,x2=np.meshgrid(np.arange(start=xs[:,0].min()-1,stop=xs[:,0].max()+1,step=0.01),
-               np.arange(start=xs[:,1].min()-1,stop=xs[:,1].max()+1,step=0.01))
-plt.contourf(x1,x2,c.predict(np.array([x1.ravel(),x2.ravel()]).T).reshape(x1.shape),
-                            alpha=0.75,cmap=ListedColormap(("pink","purple")))
-plt.xlim(x1.min(),x2.max())
-plt.ylim(x2.min(),x1.max())
-for i,j in enumerate(np.unique(ys)):
-    plt.scatter(xs[ys==j,0],xs[ys==j,1],
-                c=ListedColormap(("white","violet"))(i),label=j)
-plt.title("Logistic Regression(Training Set)")
-plt.xlabel("Age")
-plt.ylabel("Estimated Salary")
-plt.legend()
-plt.show()
-~~~
 ## Output:
-![](d1.jpg)
-![](d2.jpg)
-![](d3.jpg)
-![](d4.jpg)
-![](d5.jpg)
-![](d6.jpg)
+dataset:
 
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/b9b53ced-ff22-48f1-bd01-9d8be027192c)
+
+dataset.dtypes:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/8e6091f9-b71f-4782-b7d1-6444b5d83616)
+
+dataset:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/9a83b9f9-48a3-48b2-8315-c7e9d74435bf)
+
+
+
+Y:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/760993ab-1e4b-479e-aa2f-ec5e984f5b35)
+
+y_pred:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/b5aeb284-3645-4b8a-aaee-9436ec55bacc)
+
+Y:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/36d4cbb7-e451-48a0-89f6-c61a678fb1c5)
+
+y_prednew:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/20def8a9-c007-4bb9-94b1-e385f3accc37)
+
+y_prednew:
+
+![image](https://github.com/23004513/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/138973069/7d9ac4aa-54af-43d2-89f0-51ce992b72f4)
 
 ## Result:
 Thus the program to implement the the Logistic Regression Using Gradient Descent is written and verified using python programming.
